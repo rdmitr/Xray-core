@@ -103,6 +103,8 @@ func Exit() {
 	}
 	f.Close()
 
+	pprof.StopCPUProfile()
+
 	os.Exit(exitStatus)
 }
 
