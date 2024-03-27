@@ -2,7 +2,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
+	"runtime/pprof"
 
 	"github.com/xtls/xray-core/main/commands/base"
 	_ "github.com/xtls/xray-core/main/distro/all"
@@ -10,6 +12,20 @@ import (
 
 func main() {
 	os.Args = getArgsV4Compatible()
+
+	cpuprofile := "cpu.prof"
+
+	if cpuprofile != "" {
+		f, err := os.Create(cpuprofile)
+		if err != nil {
+			panic(fmt.Sprintf("could not create CPU profile: %v", err))
+		}
+		defer f.Close() // error handling omitted for example
+		if err := pprof.StartCPUProfile(f); err != nil {
+			panic(fmt.Sprintf("could not start CPU profile: %v", err))
+		}
+		defer pprof.StopCPUProfile()
+	}
 
 	base.RootCommand.Long = "Xray is a platform for building proxies."
 	base.RootCommand.Commands = append(

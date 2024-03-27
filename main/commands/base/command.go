@@ -10,6 +10,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime"
+	"runtime/pprof"
 	"strings"
 	"sync"
 )
@@ -90,6 +92,17 @@ func (c *Command) Runnable() bool {
 
 // Exit exits with code set with SetExitStatus()
 func Exit() {
+	memprofile := "mem.prof"
+	f, err := os.Create(memprofile)
+	if err != nil {
+		panic(fmt.Sprintf("could not create memory profile: %v", err))
+	}
+	runtime.GC() // get up-to-date statistics
+	if err := pprof.WriteHeapProfile(f); err != nil {
+		panic(fmt.Sprintf("could not write memory profile: %v", err))
+	}
+	f.Close()
+
 	os.Exit(exitStatus)
 }
 
